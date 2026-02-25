@@ -1,116 +1,111 @@
-# ai-factory-extension-hello-template
+# ai-factory-extension-aif-extension-creator-skill
 
-A minimal template for packaging MCP servers as an [ai-factory](https://github.com/lee-to/ai-factory) extension. Use it to quickly distribute one or more MCP servers across all agents managed by ai-factory.
+An [AI Factory](https://github.com/lee-to/ai-factory) extension that provides an interactive skill for scaffolding new AI Factory extensions.
 
-## Quick Start
+The `/aif-extension-creator` skill walks you through component selection (skills, commands, injections, MCP servers, agents, replacements), collects details, and generates a ready-to-install extension directory.
 
-1. Click **"Use this template"** on GitHub to create your own repository from this template, then clone it. Alternatively, fork or clone this repository directly.
-2. Edit `extension.json` — set your extension `name`, `version`, `description`, and list every MCP server in the `mcpServers` array.
-3. For each server, create a JSON template in the `mcp/` directory.
-4. Install the extension into your project:
+## Installation
 
 ```bash
-# from a local directory
-ai-factory extension add ./ai-factory-extension-hello-template
+# From a local directory
+ai-factory extension add ./ai-factory-extension-aif-extension-creator-skill
 
-# or from a git repo
-ai-factory extension add https://github.com/<user>/<repo>.git
+# From git
+ai-factory extension add https://github.com/dealenx/ai-factory-extension-aif-extension-creator-skill.git
 ```
 
-That's it — ai-factory merges the MCP server configs into every agent that supports MCP (Claude Code, Cline, etc.).
+## Usage
 
-## Project Structure
+Invoke the skill in your AI agent:
 
 ```
-ai-factory-extension-hello-template/
-├── .github/
-│   └── workflows/
-│       └── test.yml             # CI workflow
-├── commands/
-│   └── hello.js                 # Custom CLI command
-├── injections/
-│   └── implement-extra.md       # Injection appended to aif-implement
-├── mcp/
-│   └── hello-mcp.json           # MCP server template
-├── skills/
-│   ├── aif-hello-world/
-│   │   └── SKILL.md             # Custom skill
-│   └── hello-commit/
-│       └── SKILL.md             # Skill replacing aif-commit
-├── extension.json               # Extension manifest (required)
+/aif-extension-creator
+```
+
+Or pass the extension name directly:
+
+```
+/aif-extension-creator my-extension
+```
+
+The skill will interactively ask you for:
+
+1. Extension name, description, version
+2. Output path (default: `.ai-factory/local_extensions/<name>`)
+3. Which components to include (skills, commands, injections, MCP servers, agents, replacements)
+4. Details for each selected component
+5. Whether to generate a GitHub Actions CI workflow
+
+### Example
+
+```
+/aif-extension-creator make extension with:
+
+- name: aif-ext-shadcn-mcp
+- description: Adds shadcn MCP server to AI Factory
+- components: MCP Servers
+- MCP server key: shadcn
+- MCP server config:
+  {
+    "command": "npx",
+    "args": ["shadcn@latest", "mcp"]
+  }
+```
+
+This generates:
+
+```
+.ai-factory/local_extensions/aif-ext-shadcn-mcp/
+├── extension.json
 ├── package.json
-├── LICENSE
-└── README.md
+├── README.md
+└── mcp/
+    └── shadcn.json
 ```
 
-## How It Works
-
-### extension.json
-
-The manifest declares which MCP servers the extension provides:
+With `extension.json`:
 
 ```json
 {
-  "name": "ai-factory-extension-hello-template",
-  "version": "1.0.0",
-  "description": "Template: hello MCP server inside ai-factory extension",
+  "name": "aif-ext-shadcn-mcp",
+  "version": "0.1.0",
+  "description": "Adds shadcn MCP server to AI Factory",
   "mcpServers": [
     {
-      "key": "playwright",
-      "template": "./mcp/playwright.json",
-      "instruction": "Playwright MCP: Install Chrome to use a web browser"
+      "key": "shadcn",
+      "template": "./mcp/shadcn.json",
+      "instruction": "shadcn MCP server for UI component generation"
     }
   ]
 }
 ```
 
-| Field         | Description                                                          |
-| ------------- | -------------------------------------------------------------------- |
-| `key`         | Unique identifier for the server entry in the agent's settings file. |
-| `template`    | Path to a JSON file with the server's command, args, and env.        |
-| `instruction` | Message shown to the user after install (e.g. required env vars).    |
-
-### MCP Template (`mcp/*.json`)
-
-Each template follows the standard MCP server format:
+And `mcp/shadcn.json`:
 
 ```json
 {
   "command": "npx",
-  "args": ["@playwright/mcp@latest"]
+  "args": ["shadcn@latest", "mcp"]
 }
 ```
 
-You can also pass environment variables:
-
-```json
-{
-  "command": "npx",
-  "args": ["-y", "@my-org/my-mcp-server"],
-  "env": {
-    "MY_API_KEY": "${MY_API_KEY}"
-  }
-}
-```
-
-## Adding More MCP Servers
-
-1. Create a new template file in `mcp/`, e.g. `mcp/my-server.json`.
-2. Add a new entry to the `mcpServers` array in `extension.json`:
-
-```json
-{
-  "key": "my-server",
-  "template": "./mcp/my-server.json",
-  "instruction": "Set MY_API_KEY environment variable before use"
-}
-```
-
-3. Re-install the extension to apply:
+Then install it:
 
 ```bash
-ai-factory extension remove ai-factory-extension-hello-template
-ai-factory extension add ./ai-factory-extension-hello-template
+ai-factory extension add ./.ai-factory/local_extensions/aif-ext-shadcn-mcp
+```
+
+## Project Structure
+
+```
+ai-factory-extension-aif-extension-creator-skill/
+├── skills/
+│   └── aif-extension-creator/
+│       └── SKILL.md             # The extension creator skill
+├── extension.json               # Extension manifest
+├── package.json
+├── LICENSE
+└── README.md
 ```
 
 ## Managing the Extension
@@ -119,13 +114,13 @@ ai-factory extension add ./ai-factory-extension-hello-template
 # List installed extensions
 ai-factory extension list
 
-# Remove the extension (cleans up MCP entries from agent configs)
-ai-factory extension remove ai-factory-extension-hello-template
+# Remove the extension
+ai-factory extension remove ai-factory-extension-aif-extension-creator-skill
 ```
 
 ## Documentation
 
-- [ai-factory Extensions Guide](https://github.com/lee-to/ai-factory/blob/2.x/docs/extensions.md) — full reference for extension manifest fields, MCP servers, injections, commands, skills, and agents.
+- [AI Factory Extensions Guide](https://github.com/lee-to/ai-factory/blob/2.x/docs/extensions.md) — full reference for extension manifest fields, MCP servers, injections, commands, skills, and agents.
 
 ## License
 
