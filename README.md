@@ -39,7 +39,7 @@ The skill will interactively ask you for:
 ### Example
 
 ```
-/aif-extension-creator make extension with:
+/aif-extension-creator make extension with MCP:
 
 - name: aif-ext-shadcn-mcp
 - description: Adds shadcn MCP server to AI Factory
@@ -50,6 +50,17 @@ The skill will interactively ask you for:
     "command": "npx",
     "args": ["shadcn@latest", "mcp"]
   }
+```
+
+Or more simple (You need quiz to enter your extension's data):
+
+```
+/aif-extension-creator make extension with:
+
+{
+  "command": "npx",
+  "args": ["shadcn@latest", "mcp"]
+}
 ```
 
 This generates:
