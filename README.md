@@ -55,7 +55,7 @@ The skill will interactively ask you for:
 Or more simple (You need quiz to enter your extension's data):
 
 ```
-/aif-extension-creator make extension with:
+/aif-extension-creator make extension with MCP:
 
 {
   "command": "npx",
